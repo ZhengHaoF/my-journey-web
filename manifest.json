@@ -51,14 +51,14 @@
             "sdkConfigs" : {
                 "maps" : {
                     "tencent" : {
-                        "key" : "46MBZ-EBJWQ-IOO5G-BJ44P-PFJIK-NRFC7"
+                        "key" : ""
                     }
                 },
                 "geolocation" : {
                     "tencent" : {
                         "__platform__" : [ "ios", "android" ],
-                        "apikey_ios" : "46MBZ-EBJWQ-IOO5G-BJ44P-PFJIK-NRFC7",
-                        "apikey_android" : "46MBZ-EBJWQ-IOO5G-BJ44P-PFJIK-NRFC7"
+                        "apikey_ios" : "",
+                        "apikey_android" : ""
                     }
                 }
             }
@@ -97,7 +97,7 @@
         "sdkConfigs" : {
             "maps" : {
                 "tencent" : {
-                    "key" : "46MBZ-EBJWQ-IOO5G-BJ44P-PFJIK-NRFC7"
+                    "key" : ""
                 }
             }
         }
