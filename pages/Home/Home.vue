@@ -1,13 +1,18 @@
 <template>
-	<page-container>
+	<my-page-container>
 		<view class="home-container">
 			<up-button type="primary" @click="testGetUserInfo">测试获取用户信息</up-button>
 		</view>
-	</page-container>
+	</my-page-container>
 </template>
 
 <script setup>
 	import { getUserInfo } from '../../utils/tools'
+	import { onLoad } from '@dcloudio/uni-app'
+	
+	onLoad(()=>{
+		console.log("123456")
+	})
 		
 		const testGetUserInfo = () => {
 			const userInfo = getUserInfo()

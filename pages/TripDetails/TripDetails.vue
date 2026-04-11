@@ -1,5 +1,40 @@
 <template>
-	<page-container>
+	<my-page-container :showBottomActions="true">
+		<template #bottom-actions>
+			<view class="bottom-actions">
+				<!-- 编辑模式：显示删除和保存按钮 -->
+				<template v-if="isEditMode">
+					<up-button
+						type="error"
+						plain
+						:loading="deleteLoading"
+						:disabled="deleteLoading"
+						@click="handleDelete"
+					>
+						删除行程
+					</up-button>
+					<up-button
+						type="primary"
+						:loading="submitLoading"
+						:disabled="submitLoading"
+						@click="handleSubmit"
+					>
+						保存修改
+					</up-button>
+				</template>
+				<!-- 创建模式：显示创建按钮 -->
+				<template v-else>
+					<up-button
+						type="primary"
+						:loading="submitLoading"
+						:disabled="submitLoading"
+						@click="handleSubmit"
+					>
+						创建行程
+					</up-button>
+				</template>
+			</view>
+		</template>
 		<view class="trip-details-page">
 
 
@@ -43,43 +78,16 @@
 				</up-form>
 				<view>详细内容</view>
 				<view>
-
-				</view>
-
-				<!-- 保存按钮（仅创建模式显示） -->
-				<view class="submit-section" v-if="!isEditMode">
-					<up-button
-						type="primary"
-						:loading="submitLoading"
-						:disabled="submitLoading"
-						@click="handleSubmit"
-					>
-						创建行程
-					</up-button>
+					<view style="display:flex;align-items: center;">
+						<view style="flex: 8;">
+							
+						</view>
+						<view style="flex: 2;"><up-button type="primary" icon="plus" text="添加行程" @click="handleAddAttraction"></up-button></view>
+					</view>
 				</view>
 			</view>
 
 			<up-line />
-
-			<view class="header-actions" v-if="isEditMode">
-				<up-button
-					type="error"
-					plain
-					:loading="deleteLoading"
-					:disabled="deleteLoading"
-					@click="handleDelete"
-				>
-					删除行程
-				</up-button>
-				<up-button
-					type="primary"
-					:loading="submitLoading"
-					:disabled="submitLoading"
-					@click="handleSubmit"
-				>
-					保存修改
-				</up-button>
-			</view>
 
 			<!-- 日期选择器弹窗 -->
 			<up-calendar
@@ -90,19 +98,32 @@
 				@close="calendarShow = false"
 			/>
 		</view>
-	</page-container>
+	</my-page-container>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import { getTripDetail, createTrip, updateTrip, deleteTrip } from '../../api/api'
 import { hasLogin } from '../../utils/tools'
-import pageContainer from '../../components/page-container/page-container.vue'
+import myPageContainer from '../../components/my-page-container/my-page-container.vue'
 
 const formRef = ref(null)
 const tripUuid = ref('')
 const submitLoading = ref(false)
 const deleteLoading = ref(false)
+const tripData = ref([
+	    {
+        "type":"mainAttraction",
+        "uuid":"",
+        "satelliteAttractionList":[
+            {
+                "type":"satelliteAttraction",
+                "uuid":""
+            }
+        ]
+    }
+])
 
 // 日历相关
 const calendarShow = ref(false)
@@ -147,7 +168,7 @@ const dateRangeText = computed(() => {
 	return '请选择日期'
 })
 
-onMounted(() => {
+onLoad(() => {
 	const pages = getCurrentPages()
 	const currentPage = pages[pages.length - 1]
 	const options = currentPage.options || {}
@@ -202,6 +223,8 @@ const loadTripDetail = () => {
 }
 
 const handleSubmit = async () => {
+
+
 	try {
 		await formRef.value.validate()
 	} catch (e) {
@@ -221,10 +244,10 @@ const handleSubmit = async () => {
 
 	const submitData = {
 		title: formData.title,
-		text: formData.text || undefined,
-		startDate: formData.startDate || undefined,
-		endDate: formData.endDate || undefined,
-		cover: formData.cover || undefined
+		text: formData.text || "",
+		startDate: formData.startDate || "",
+		endDate: formData.endDate || "",
+		cover: formData.cover || ""
 	}
 
 	if (isEditMode.value) {
@@ -236,9 +259,7 @@ const handleSubmit = async () => {
 						title: '修改成功',
 						icon: 'success'
 					})
-					setTimeout(() => {
-						uni.navigateBack()
-					}, 1500)
+					uni.navigateBack()
 				} else {
 					uni.showToast({
 						title: res.message || '修改失败',
@@ -263,9 +284,7 @@ const handleSubmit = async () => {
 						title: '创建成功',
 						icon: 'success'
 					})
-					setTimeout(() => {
-						uni.navigateBack()
-					}, 1500)
+					uni.navigateBack()
 				} else {
 					uni.showToast({
 						title: res.message || '创建失败',
@@ -307,9 +326,7 @@ const performDelete = () => {
 					title: '删除成功',
 					icon: 'success'
 				})
-				setTimeout(() => {
-					uni.navigateBack()
-				}, 1500)
+				uni.navigateBack()
 			} else {
 				uni.showToast({
 					title: res.message || '删除失败',
@@ -349,37 +366,19 @@ const handleCalendarConfirm = (e) => {
 	background: #f5f5f5;
 }
 
-.header-actions {
-	display: flex;
-	gap: 20rpx;
-	justify-content: space-between;
-	padding: 24rpx 32rpx;
-	background: #ffffff;
-
-	.up-button {
-		flex: 1;
-		margin: 0 16rpx;
-
-		&:first-child {
-			margin-left: 0;
-		}
-
-		&:last-child {
-			margin-right: 0;
-		}
-	}
-}
-
 .form-container {
 	padding: 30rpx;
 	background: #ffffff;
 	margin-top: 20rpx;
 }
 
-.submit-section {
-	margin-top: 50rpx;
+.bottom-actions {
 	display: flex;
-	flex-direction: column;
-	gap: 30rpx;
+	gap: 20rpx;
+	justify-content: space-between;
+	
+	.up-button {
+		flex: 1;
+	}
 }
 </style>

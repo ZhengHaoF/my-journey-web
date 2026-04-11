@@ -1,5 +1,5 @@
 <template>
-	<page-container>
+	<my-page-container>
 		<view class="trip-page">
 			<!-- 瀑布流列表 -->
 			<view v-if="tripList.length > 0" class="waterfall-container">
@@ -70,34 +70,34 @@
 				</view>
 			</view>
 		</view>
-	</page-container>
+	</my-page-container>
 </template>
 
 <script setup>
-import { ref, computed, onActivated } from 'vue'
+import { ref, computed } from 'vue'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 import { getTripList } from '../../api/api'
 import { hasLogin } from '../../utils/tools'
-import pageContainer from '../../components/page-container/page-container.vue'
+import myPageContainer from '../../components/my-page-container/my-page-container.vue'
 
 const tripList = ref([])
 const loading = ref(false)
-const defaultImage = 'https://via.placeholder.com/300x200/667eea/ffffff?text=行程'
+const defaultImage = 'https://placehold.co/400x200/007bff/white?text=Banner'
 
-onActivated(() => {
+
+onLoad(() => {
+	loadTripList()
+})
+
+onShow(() => {
 	loadTripList()
 })
 
 const loadTripList = () => {
 	if (!hasLogin()) {
-		uni.showToast({
-			title: '请先登录',
-			icon: 'none'
+		uni.reLaunch({
+			url: '/pages/index/index'
 		})
-		setTimeout(() => {
-			uni.switchTab({
-				url: '/pages/index/index'
-			})
-		}, 1500)
 		return
 	}
 

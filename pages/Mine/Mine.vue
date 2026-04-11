@@ -1,5 +1,5 @@
 <template>
-	<page-container>
+	<my-page-container>
 		<view class="mine-container">
 			<up-cell-group>
 				<up-cell
@@ -34,7 +34,7 @@
 				></up-cell>
 			</up-cell-group>
 		</view>
-	</page-container>
+	</my-page-container>
 </template>
 
 <script setup>
@@ -46,6 +46,9 @@
 	const goToMyFavorites = () => {
 		// TODO: 跳转到我的收藏页面
 		console.log('点击了我的收藏')
+		uni.navigateTo({
+			url: '/pages/MyCollections/MyCollections'
+		})
 	}
 
 	const goToSettings = () => {

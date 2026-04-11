@@ -62,3 +62,57 @@ export const updateTrip = (uuid, params) => {
 export const deleteTrip = (uuid) => {
   return post(`/trip/delete/${uuid}`, {}, "DELETE");
 };
+
+/**
+ * 获取收藏点位列表
+ * @returns {*|Promise<unknown>}
+ */
+export const getCollectList = () => {
+  return post("/user-collect/list", {}, "GET");
+};
+
+/**
+ * 获取收藏点位详情
+ * @param uuid 收藏点位唯一标识
+ * @returns {*|Promise<unknown>}
+ */
+export const getCollectDetail = (uuid) => {
+  return post(`/user-collect/detail/${uuid}`, {}, "GET");
+};
+
+/**
+ * 新增收藏点位
+ * @param params {title, latitude, longitude, address, remark}
+ * @returns {*|Promise<unknown>}
+ */
+export const createCollect = (params) => {
+  return post("/user-collect/create", params, "POST");
+};
+
+/**
+ * 修改收藏点位
+ * @param uuid 收藏点位唯一标识
+ * @param params {title, address, remark}
+ * @returns {*|Promise<unknown>}
+ */
+export const updateCollect = (uuid, params) => {
+  return post(`/user-collect/update/${uuid}`, params, "PUT");
+};
+
+/**
+ * 删除收藏点位
+ * @param uuid 收藏点位唯一标识
+ * @returns {*|Promise<unknown>}
+ */
+export const deleteCollect = (uuid) => {
+  return post(`/user-collect/delete/${uuid}`, {}, "DELETE");
+};
+
+/**
+ * 批量查询收藏点位
+ * @param params {uuids: array}
+ * @returns {*|Promise<unknown>}
+ */
+export const batchGetCollect = (params) => {
+  return post("/user-collect/batch", params, "POST");
+};

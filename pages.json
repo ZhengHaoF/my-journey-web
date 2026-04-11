@@ -42,6 +42,18 @@
 			"style": {
 				"navigationBarTitleText": "行程详情"
 			}
+		},
+		{
+			"path": "pages/MyCollections/MyCollections",
+			"style": {
+				"navigationBarTitleText": "我的收藏"
+			}
+		},
+		{
+			"path": "pages/PointEditing/PointEditing",
+			"style": {
+				"navigationBarTitleText": "点位编辑"
+			}
 		}
 	],
 	"globalStyle": {

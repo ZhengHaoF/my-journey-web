@@ -1,30 +1,34 @@
 <template>
-	<page-container>
+	<my-page-container>
 		<view class="login-container">
 			<view class="header">
 				<text class="title">My Journey</text>
 				<text class="subtitle">{{ isLoginMode ? '欢迎回来' : '创建账号' }}</text>
 			</view>
 
-			<view class="form">
-				<up-input
-					v-model="formData.username"
-					placeholder="请输入用户名"
-					:prefixIcon="userIcon"
-					prefixIconStyle="font-size: 22px;"
-					clearable
-					class="input-field"
-				/>
-				
-				<up-input
-					v-model="formData.password"
-					type="password"
-					placeholder="请输入密码"
-					:prefixIcon="lockIcon"
-					prefixIconStyle="font-size: 22px;"
-					clearable
-					class="input-field"
-				/>
+			<view class="form" >
+				<up-form ref="formRef" :labelWidth="60" :model="formData" :rules="rules">
+					<up-form-item label="用户名" prop="username">
+						<up-input
+							v-model="formData.username"
+							placeholder="请输入用户名"
+							:prefixIcon="userIcon"
+							prefixIconStyle="font-size: 22px;"
+							clearable
+						/>
+					</up-form-item>
+					
+					<up-form-item label="密码" prop="password">
+						<up-input
+							v-model="formData.password"
+							type="password"
+							placeholder="请输入密码"
+							:prefixIcon="lockIcon"
+							prefixIconStyle="font-size: 22px;"
+							clearable
+						/>
+					</up-form-item>
+				</up-form>
 
 				<up-button
 					type="primary"
@@ -42,26 +46,67 @@
 				</view>
 			</view>
 		</view>
-	</page-container>
+	</my-page-container>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import { loginAPP, registerAPP } from '../../api/api'
 import { setUserInfo, hasLogin } from '../../utils/tools'
-import pageContainer from '../../components/page-container/page-container.vue'
+import myPageContainer from '../../components/my-page-container/my-page-container.vue'
 
 const isLoginMode = ref(true)
 const loading = ref(false)
 const userIcon = 'account'
 const lockIcon = 'lock'
+const formRef = ref(null)
 
 const formData = reactive({
 	username: '',
 	password: ''
 })
 
-onMounted(() => {
+const rules = {
+	username: [
+		{
+			type: 'string',
+			required: true,
+			message: '请填写用户名',
+			trigger: ['blur', 'change']
+		},
+		{
+			type: 'string',
+			min: 3,
+			max: 20,
+			message: '用户名长度需在3-20位之间',
+			trigger: ['blur', 'change']
+		}
+	],
+	password: [
+		{
+			type: 'string',
+			required: true,
+			message: '请填写密码',
+			trigger: ['blur', 'change']
+		},
+		{
+			type: 'string',
+			min: 6,
+			max: 20,
+			message: '密码长度需在6-20位之间',
+			trigger: ['blur', 'change']
+		}
+	]
+}
+
+onLoad(() => {
+
+	// #ifdef MP-WEIXIN
+		uni.navigateTo({ url: '/pages/maptest/maptest' })
+	// #endif
+
+
 	if (hasLogin()) {
 		uni.showToast({
 			title: '您已登录',
@@ -74,66 +119,46 @@ onMounted(() => {
 })
 
 const handleSubmit = () => {
-	if (!formData.username || !formData.password) {
-		uni.showToast({
-			title: '请填写完整信息',
-			icon: 'none'
-		})
-		return
-	}
+	formRef.value.validate().then(valid => {
+		if (!valid) return
+		
+		loading.value = true
 
-	if (formData.username.length < 3 || formData.username.length > 20) {
-		uni.showToast({
-			title: '用户名长度需在3-20位之间',
-			icon: 'none'
-		})
-		return
-	}
-
-	if (formData.password.length < 6 || formData.password.length > 20) {
-		uni.showToast({
-			title: '密码长度需在6-20位之间',
-			icon: 'none'
-		})
-		return
-	}
-
-	loading.value = true
-
-	if (isLoginMode.value) {
-		loginAPP(formData).then((res) => {
-			loading.value = false
-			setUserInfo(res.data)
-			uni.showToast({
-				title: '登录成功',
-				icon: 'success'
-			})
-			console.log('登录成功:', res)
-			setTimeout(() => {
-				uni.switchTab({
-					url: '/pages/Home/Home'
+		if (isLoginMode.value) {
+			loginAPP(formData).then((res) => {
+				loading.value = false
+				setUserInfo(res.data)
+				uni.showToast({
+					title: '登录成功',
+					icon: 'success'
 				})
-			}, 1500)
-		}).catch((error) => {
-			loading.value = false
-			console.error('登录失败:', error)
-		})
-	} else {
-		registerAPP(formData).then((res) => {
-			loading.value = false
-			uni.showToast({
-				title: '注册成功，请登录',
-				icon: 'success'
+				console.log('登录成功:', res)
+				setTimeout(() => {
+					uni.switchTab({
+						url: '/pages/Home/Home'
+					})
+				}, 1500)
+			}).catch((error) => {
+				loading.value = false
+				console.error('登录失败:', error)
 			})
-			console.log('注册成功:', res)
-			isLoginMode.value = true
-			formData.username = ''
-			formData.password = ''
-		}).catch((error) => {
-			loading.value = false
-			console.error('注册失败:', error)
-		})
-	}
+		} else {
+			registerAPP(formData).then((res) => {
+				loading.value = false
+				uni.showToast({
+					title: '注册成功，请登录',
+					icon: 'success'
+				})
+				console.log('注册成功:', res)
+				isLoginMode.value = true
+				formData.username = ''
+				formData.password = ''
+			}).catch((error) => {
+				loading.value = false
+				console.error('注册失败:', error)
+			})
+		}
+	})
 }
 
 const switchMode = () => {
@@ -183,13 +208,6 @@ const switchMode = () => {
 	border-radius: 20rpx;
 	padding: 60rpx 40rpx;
 	box-shadow: 0 10rpx 40rpx rgba(0, 0, 0, 0.1);
-}
-
-.input-field {
-	margin-bottom: 30rpx;
-	background: #f8f9fa;
-	border-radius: 10rpx;
-	padding: 20rpx !important;
 }
 
 .submit-btn {
