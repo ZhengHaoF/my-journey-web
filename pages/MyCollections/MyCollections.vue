@@ -177,7 +177,6 @@ const formatTime = (time) => {
 	color: #333;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	white-space: nowrap;
 }
 
 .card-address {

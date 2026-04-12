@@ -116,3 +116,12 @@ export const deleteCollect = (uuid) => {
 export const batchGetCollect = (params) => {
   return post("/user-collect/batch", params, "POST");
 };
+
+/**
+ * 逆地址解析
+ * @param params {address}
+ * @returns {*|Promise<unknown>}
+ */
+export const getGeocoder = (params) => {
+  return post("/proxy/geocoder", params, "GET");
+};

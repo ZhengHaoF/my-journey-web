@@ -129,7 +129,7 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { createCollect, updateCollect, getCollectDetail, deleteCollect } from '../../api/api'
+import { createCollect, updateCollect, getCollectDetail, deleteCollect, getGeocoder } from '../../api/api'
 import { hasLogin } from '../../utils/tools'
 import myPageContainer from '../../components/my-page-container/my-page-container.vue'
 
@@ -323,7 +323,6 @@ const handleMarkerTap = (e) => {
 
 const handleSelectPoint = () => {
 	const map1 = uni.createMapContext("map1", this)
-	
 	map1.getCenterLocation({
 		success: (res) => {
 			console.log("地图中心点坐标：", res)
@@ -343,7 +342,16 @@ const handleSelectPoint = () => {
 			
 			formData.latitude = String(res.latitude)
 			formData.longitude = String(res.longitude)
-			
+			getGeocoder({
+				latitude: res.latitude,
+				longitude: res.longitude
+			}).then((res)=>{
+				if(res.code === 200){
+					console.log(res.result.formatted_addresses.recommend,123456789)
+					formData.title = res?.result?.formatted_addresses?.recommend || ''
+				}
+			})
+					
 			uni.showToast({
 				title: '已选择收藏点位置',
 				icon: 'success'
