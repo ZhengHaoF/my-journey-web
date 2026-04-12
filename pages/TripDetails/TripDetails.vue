@@ -83,10 +83,13 @@
 							<view style="flex: 8;">
 								<view style="display: flex;gap: 10px;align-items: center;">
 									<up-icon :name="currentAttractionIndex === index?'map-fill':'map'" size="30"></up-icon>
-									<view style="display: flex;flex: auto;flex-wrap: wrap;align-items: center;gap: 10rpx;">
-										<view style="flex: auto">{{item.title}}</view>
-										<view><up-button type="error" :plain="true" size="small" icon="trash" @click="handleDeleteAttraction(index)"></up-button></view>
-										<view><up-button type="primary" icon="plus" size="small" text="子景点" @click="handleAddSatelliteAttraction(index)"></up-button></view>
+									<view style="display: flex;flex: auto;flex-wrap: wrap;align-items: center;">
+										<view style="flex: auto;display: flex;align-items: center;gap: 10rpx;">
+											<view style="flex: auto;">{{item.title}}</view>
+											<uni-icons type="paperplane-filled" size="30" color="#5DAE60" @click="startNavigation(item.latitude,item.longitude)"></uni-icons>
+											<view><up-button type="primary" icon="plus" size="small" @click="handleAddSatelliteAttraction(index)"></up-button></view>
+											<view><up-button type="error" :plain="true" size="small" icon="trash" @click="handleDeleteAttraction(index)"></up-button></view>
+										</view>
 										<view style="flex: 100%;color: #888;font-size: 24rpx;">{{item.remark}}</view>
 									</view>
 								</view>
