@@ -7,33 +7,32 @@
 </template>
 
 <script setup>
-	import { getUserInfo } from '../../utils/tools'
-	import { onLoad } from '@dcloudio/uni-app'
-	
-	onLoad(()=>{
-		console.log("123456")
-	})
-		
-		const testGetUserInfo = () => {
-			const userInfo = getUserInfo()
-			console.log(userInfo)
-		
-			if (userInfo) {
-				uni.showToast({
-					title: '用户信息获取成功',
-					icon: 'success'
-				})
-			} else {
-				uni.showToast({
-					title: '用户信息获取失败',
-					icon: 'none'
-				})
-			}
+	import {
+		getUserInfo
+	} from '../../utils/tools'
+	import {
+		onLoad
+	} from '@dcloudio/uni-app'
+	const testGetUserInfo = () => {
+		const userInfo = getUserInfo()
+		console.log(userInfo)
+
+		if (userInfo) {
+			uni.showToast({
+				title: '用户信息获取成功',
+				icon: 'success'
+			})
+		} else {
+			uni.showToast({
+				title: '用户信息获取失败',
+				icon: 'none'
+			})
 		}
+	}
 </script>
 
 <style lang="scss">
-.home-container {
-	padding: 20rpx;
-}
+	.home-container {
+		padding: 20rpx;
+	}
 </style>
