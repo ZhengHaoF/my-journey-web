@@ -38,8 +38,8 @@ export const clearUserInfo = () => {
 
 export const startNavigation = (latitude,longitude) => {
 	uni.openLocation({
-		latitude: latitude
-		longitude: longitude
+		latitude: latitude,
+		longitude: longitude,
 		success: () => {
 			console.log('success')
 		}
