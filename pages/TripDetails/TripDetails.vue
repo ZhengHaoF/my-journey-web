@@ -79,7 +79,7 @@
 				<view style="margin-bottom:20px">详细内容</view>
 				<view class="attraction-section">
 					<view class="attraction-container">
-						<view v-for="(item,index) in tripData" :key="index" class="attraction-item">
+						<view v-for="(item,index) in formData.routePlan" :key="index" class="attraction-item">
 							<view class="attraction-content">
 								<view class="attraction-header">
 									<up-icon :name="currentAttractionIndex === index?'map-fill':'map'" color="#5DAE60" size="30" @click="startNavigation(item.latitude,item.longitude)"></up-icon>
@@ -177,38 +177,6 @@ const formRef = ref(null)
 const tripUuid = ref('')
 const submitLoading = ref(false)
 const deleteLoading = ref(false)
-const tripData = ref([
-	    {
-        "type":"mainAttraction",
-		"id": "9",
-		"uuid": "a58b56d9-7a96-4431-aeaf-2d29c86b17b9",
-		"userId": "1",
-		"title": "余杭区良渚街道黄灯桥",
-		"latitude": 30.390115,
-		"longitude": 120.047465,
-		"address": "水电费水电费s",
-		"remark": "在这里停车",
-		"isDeleted": 0,
-		"createTime": "2026-04-12T12:55:10.206Z",
-		"updateTime": "2026-04-12T12:55:10.206Z",
-        "satelliteAttractionList":[
-            {
-                "type":"satelliteAttraction",
-                "id": "9",
-                "uuid": "a58b56d9-7a96-4431-aeaf-2d29c86b17b9",
-                "userId": "1",
-                "title": "天安门",
-                "latitude": 30.390115,
-                "longitude": 120.047465,
-                "address": "水电费水电费s",
-                "remark": "在这里吃烤饼",
-                "isDeleted": 0,
-                "createTime": "2026-04-12T12:55:10.206Z",
-                "updateTime": "2026-04-12T12:55:10.206Z",
-            }
-        ]
-    }
-])
 
 // 收藏点位相关
 const attractionPopupShow = ref(false)
@@ -227,7 +195,8 @@ const formData = reactive({
 	text: '',
 	startDate: '',
 	endDate: '',
-	cover: ''
+	cover: '',
+	routePlan:[]
 })
 
 const rules = {
@@ -309,6 +278,54 @@ const loadTripDetail = () => {
 				formData.startDate = data.startDate || ''
 				formData.endDate = data.endDate || ''
 				formData.cover = data.cover || ''
+				formData.routePlan = data.routePlan || [];
+
+
+				//这里获取到的是这个，需要修改
+				
+				// [
+				//     {
+				//         "uuid": "a58b56d9-7a96-4431-aeaf-2d29c86b17b9",
+				//         "satelliteAttractionList": [
+				//             {
+				//                 "uuid": "a58b56d9-7a96-4431-aeaf-2d29c86b17b9"
+				//             }
+				//         ]
+				//     }
+				// ]
+				
+				// formData.routePlan = [
+				// 		    {
+				// 	        "type":"mainAttraction",
+				// 			"id": "9",
+				// 			"uuid": "a58b56d9-7a96-4431-aeaf-2d29c86b17b9",
+				// 			"userId": "1",
+				// 			"title": "余杭区良渚街道黄灯桥",
+				// 			"latitude": 30.390115,
+				// 			"longitude": 120.047465,
+				// 			"address": "水电费水电费s",
+				// 			"remark": "在这里停车",
+				// 			"isDeleted": 0,
+				// 			"createTime": "2026-04-12T12:55:10.206Z",
+				// 			"updateTime": "2026-04-12T12:55:10.206Z",
+				// 	        "satelliteAttractionList":[
+				// 	            {
+				// 	                "type":"satelliteAttraction",
+				// 	                "id": "9",
+				// 	                "uuid": "a58b56d9-7a96-4431-aeaf-2d29c86b17b9",
+				// 	                "userId": "1",
+				// 	                "title": "天安门",
+				// 	                "latitude": 30.390115,
+				// 	                "longitude": 120.047465,
+				// 	                "address": "水电费水电费s",
+				// 	                "remark": "在这里吃烤饼",
+				// 	                "isDeleted": 0,
+				// 	                "createTime": "2026-04-12T12:55:10.206Z",
+				// 	                "updateTime": "2026-04-12T12:55:10.206Z",
+				// 	            }
+				// 	        ]
+				// 	    }
+				// ]
 				console.log('加载行程详情成功:', data)
 			} else {
 				uni.showToast({
@@ -347,12 +364,28 @@ const handleSubmit = async () => {
 
 	submitLoading.value = true
 
+	let routePlan = JSON.parse(JSON.stringify(formData.routePlan));
+	routePlan = routePlan.map((item,index)=>{
+		let satelliteAttractionList = JSON.parse(JSON.stringify(item?.satelliteAttractionList || []));
+		satelliteAttractionList = satelliteAttractionList.map((item2)=>{
+			return {
+				uuid:item2.uuid
+			}
+		})
+		return {
+			uuid:item.uuid,
+			satelliteAttractionList:satelliteAttractionList
+		}
+	})
+	console.log(routePlan,123465)
+	// return;
 	const submitData = {
 		title: formData.title,
 		text: formData.text || "",
 		startDate: formData.startDate || "",
 		endDate: formData.endDate || "",
-		cover: formData.cover || ""
+		cover: formData.cover || "",
+		routePlan: routePlan
 	}
 
 	if (isEditMode.value) {
@@ -474,7 +507,7 @@ const handleAddAttraction = () => {
 }
 
 const handleDeleteAttraction = (index) => {
-	tripData.value.splice(index, 1)
+	formData.routePlan.splice(index, 1)
 }
 
 
@@ -525,12 +558,12 @@ const handleSelectAttraction = (item) => {
 		icon: 'success'
 	})
 	if(addAttractionType.value === "mainAttraction"){
-		tripData.value.push({
+		formData.routePlan.push({
 			...item,
 			satelliteAttractionList:[]
 		})
 	}else if(addAttractionType.value === "satelliteAttraction"){
-		tripData.value[mainAttractionIndex.value].satelliteAttractionList.push({
+		formData.routePlan[mainAttractionIndex.value].satelliteAttractionList.push({
 			...item
 		})
 	}
