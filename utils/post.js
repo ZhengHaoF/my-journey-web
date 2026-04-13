@@ -2,7 +2,7 @@ import {
 	http
 } from "./request.js";
 
-import { BASE_URL } from "../config.js";
+import { BASE_URL, WX_BASE_URL } from "../config.js";
 
 //登录接口要特殊一点
 export const post = (path,params,method = "POST") => {
@@ -15,7 +15,7 @@ export const post = (path,params,method = "POST") => {
 	if(process.env.NODE_ENV === "development"){
 	 url = BASE_URL + path;	
 	}else{
-		url = ""
+		url = WX_BASE_URL + path;
 	}
 	return sandPost(url, post_params,method)
 }

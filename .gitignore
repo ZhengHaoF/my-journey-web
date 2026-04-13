@@ -2,3 +2,7 @@ node_modules/
 unpackage/
 .hbuilderx/
 .DS_Store
+.idea/MarsCodeWorkspaceAppSettings.xml
+.idea/UniappTool.xml
+.idea/workspace.xml
+manifest.json

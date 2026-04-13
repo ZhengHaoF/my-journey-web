@@ -11,7 +11,7 @@
 						@click="handleCardClick(item.uuid)"
 					>
 						<image
-							:src="item.cover || defaultImage"
+							:src="item.cover || getDefaultImage(item.title)"
 							mode="widthFix"
 							class="card-image"
 							lazy-load
@@ -34,7 +34,7 @@
 						@click="handleCardClick(item.uuid)"
 					>
 						<image
-							:src="item.cover || defaultImage"
+							:src="item.cover || getDefaultImage(item.title)"
 							mode="widthFix"
 							class="card-image"
 							lazy-load
@@ -82,7 +82,11 @@ import myPageContainer from '../../components/my-page-container/my-page-containe
 
 const tripList = ref([])
 const loading = ref(false)
-const defaultImage = 'https://placehold.co/400x200/007bff/white?text=Banner'
+const defaultImage = 'https://iph.href.lu/400x200?bg=2196F3&fg=ffffff&text='
+
+const getDefaultImage = (txt) =>{
+	return defaultImage + txt
+}
 
 
 onLoad(() => {
@@ -160,6 +164,7 @@ const handleCardClick = (uuid) => {
 .waterfall-left,
 .waterfall-right {
 	flex: 1;
+	width: 0;
 	display: flex;
 	flex-direction: column;
 	gap: 20rpx;

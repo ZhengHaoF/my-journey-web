@@ -77,36 +77,34 @@
 					</up-form-item>
 				</up-form>
 				<view style="margin-bottom:20px">详细内容</view>
-				<view>
-					<view style="align-items: center;">
-						<view v-for="(item,index) in tripData" style="flex: 8;display: flex;gap: 10px;">
-							<view style="flex: 8;">
-								<view style="display: flex;gap: 10px;align-items: center;">
-									<up-icon :name="currentAttractionIndex === index?'map-fill':'map'" size="30"></up-icon>
-									<view style="display: flex;flex: auto;flex-wrap: wrap;align-items: center;">
-										<view style="flex: auto;display: flex;align-items: center;gap: 10rpx;">
-											<view style="flex: auto;">{{item.title}}</view>
-											<uni-icons type="paperplane-filled" size="30" color="#5DAE60" @click="startNavigation(item.latitude,item.longitude)"></uni-icons>
-											<view><up-button type="primary" icon="plus" size="small" @click="handleAddSatelliteAttraction(index)"></up-button></view>
+				<view class="attraction-section">
+					<view class="attraction-container">
+						<view v-for="(item,index) in tripData" :key="index" class="attraction-item">
+							<view class="attraction-content">
+								<view class="attraction-header">
+									<up-icon :name="currentAttractionIndex === index?'map-fill':'map'" color="#5DAE60" size="30" @click="startNavigation(item.latitude,item.longitude)"></up-icon>
+									<view class="attraction-info">
+										<view class="attraction-actions">
+											<view class="attraction-title">{{item.title}}</view>
 											<view><up-button type="error" :plain="true" size="small" icon="trash" @click="handleDeleteAttraction(index)"></up-button></view>
+											<view><up-button type="primary" icon="plus" size="small" @click="handleAddSatelliteAttraction(index)"></up-button></view>
 										</view>
-										<view style="flex: 100%;color: #888;font-size: 24rpx;">{{item.remark}}</view>
+										<view class="attraction-remark">{{item.remark}}</view>
 									</view>
 								</view>
-								<view style="min-height:100rpx;border-left:2rpx solid #3C9CFF;margin-left: 30rpx;margin: 20rpx 30rpx;padding-left: 10rpx;">
-									<view style="margin-left: 52rpx;display: flex;flex-wrap: wrap;margin-bottom: 10px;" v-for="(item2,index) in item.satelliteAttractionList">
-										<up-icon name="pushpin" size="20"></up-icon>
-										<view style="display: flex;align-items: center;flex-wrap: wrap;">
+								<view class="satellite-container">
+									<view class="satellite-list" v-for="(item2,index2) in item.satelliteAttractionList" :key="index2">
+										<uni-icons type="paperplane-filled" size="25" color="#5DAE60" @click="startNavigation(item2.latitude,item2.longitude)"></uni-icons>
+										<view class="satellite-item">
 											<text>{{item2.title}}</text>
-											<text style="color: #888;font-size: 24rpx;flex: 100%;">{{item2.remark}}</text>
+											<text class="satellite-remark">{{item2.remark}}</text>
 										</view>
 									</view>
 								</view>
-							</view>
-			
+							</view>			
 						</view>
 					</view>
-					<view style="flex: 2;"><up-button type="primary" icon="plus" text="主景点" @click="handleAddAttraction"></up-button></view>
+					<view class="add-attraction-btn"><up-button type="primary" icon="plus" text="主景点" @click="handleAddAttraction"></up-button></view>
 				</view>
 			</view>
 
@@ -172,7 +170,7 @@
 import { ref, reactive, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { getTripDetail, createTrip, updateTrip, deleteTrip, getCollectList } from '../../api/api'
-import { hasLogin } from '../../utils/tools'
+import { hasLogin , startNavigation} from '../../utils/tools'
 import myPageContainer from '../../components/my-page-container/my-page-container.vue'
 
 const formRef = ref(null)
@@ -186,8 +184,8 @@ const tripData = ref([
 		"uuid": "a58b56d9-7a96-4431-aeaf-2d29c86b17b9",
 		"userId": "1",
 		"title": "余杭区良渚街道黄灯桥",
-		"latitude": "30.390115",
-		"longitude": "120.047465",
+		"latitude": 30.390115,
+		"longitude": 120.047465,
 		"address": "水电费水电费s",
 		"remark": "在这里停车",
 		"isDeleted": 0,
@@ -200,8 +198,8 @@ const tripData = ref([
                 "uuid": "a58b56d9-7a96-4431-aeaf-2d29c86b17b9",
                 "userId": "1",
                 "title": "天安门",
-                "latitude": "30.390115",
-                "longitude": "120.047465",
+                "latitude": 30.390115,
+                "longitude": 120.047465,
                 "address": "水电费水电费s",
                 "remark": "在这里吃烤饼",
                 "isDeleted": 0,
@@ -592,5 +590,84 @@ const handleSelectAttraction = (item) => {
 	color: #999;
 	font-size: 28rpx;
 	gap: 20rpx;
+}
+
+.attraction-section {
+	display: flex;
+	flex-direction: column;
+
+	.attraction-container {
+		align-items: center;
+	}
+
+	.attraction-item {
+		flex: 8;
+		display: flex;
+		gap: 10px;
+
+		.attraction-content {
+			flex: 8;
+
+			.attraction-header {
+				display: flex;
+				gap: 10px;
+				align-items: center;
+
+				.attraction-info {
+					display: flex;
+					flex: auto;
+					flex-wrap: wrap;
+					align-items: center;
+
+					.attraction-actions {
+						flex: auto;
+						display: flex;
+						align-items: center;
+						gap: 10rpx;
+
+						.attraction-title {
+							flex: auto;
+						}
+					}
+
+					.attraction-remark {
+						flex: 100%;
+						color: #888;
+						font-size: 24rpx;
+					}
+				}
+			}
+
+			.satellite-container {
+				min-height: 100rpx;
+				border-left: 2rpx solid #5DAE60;
+				margin-left: 30rpx;
+				margin: 20rpx 30rpx;
+				padding-left: 10rpx;
+				display: flex;
+
+				.satellite-list {
+					display: flex;
+					margin-bottom: 10px;
+
+					.satellite-item {
+						display: flex;
+						align-items: center;
+						flex-wrap: wrap;
+
+						.satellite-remark {
+							color: #888;
+							font-size: 24rpx;
+							flex: 100%;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.add-attraction-btn {
+		flex: 2;
+	}
 }
 </style>

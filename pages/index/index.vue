@@ -101,12 +101,6 @@ const rules = {
 }
 
 onLoad(() => {
-
-	// #ifdef MP-WEIXIN
-		uni.navigateTo({ url: '/pages/maptest/maptest' })
-	// #endif
-
-
 	if (hasLogin()) {
 		uni.showToast({
 			title: '您已登录',
