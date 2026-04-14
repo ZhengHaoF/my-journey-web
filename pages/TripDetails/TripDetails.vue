@@ -143,7 +143,7 @@
 					<!-- 地点列表 -->
 					<scroll-view scroll-y class="attraction-list">
 						<up-cell-group>
-							<up-cell
+						<up-cell
 								v-for="item in filteredAttractionList"
 								:key="item.uuid"
 								:title="item.title"
@@ -151,8 +151,13 @@
 								clickable
 								@click="handleSelectAttraction(item)"
 							>
-								<template #icon>
+<template #icon>
 									<up-icon name="star-fill" color="#ff9900" size="20"></up-icon>
+								</template>
+<template #right-icon>
+									<view @tap.stop="handleEditAttraction(item)">
+										<up-icon name="edit-pen" color="#5DAE60" size="20"></up-icon>
+									</view>
 								</template>
 							</up-cell>
 						</up-cell-group>
@@ -169,7 +174,7 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 import { getTripDetail, createTrip, updateTrip, deleteTrip, getCollectList ,batchGetCollect} from '../../api/api'
 import { hasLogin , startNavigation} from '../../utils/tools'
 import myPageContainer from '../../components/my-page-container/my-page-container.vue'
@@ -256,7 +261,9 @@ onLoad(() => {
 			icon: 'none'
 		})
 		setTimeout(() => {
-			uni.navigateBack()
+			uni.reLaunch({
+				url: '/pages/index/index'
+			})
 		}, 1500)
 		return
 	}
@@ -264,6 +271,10 @@ onLoad(() => {
 	if (isEditMode.value) {
 		loadTripDetail()
 	}
+})
+
+onShow(() => {
+	loadCollectList()
 })
 
 const loadTripDetail = () => {
@@ -293,36 +304,37 @@ const loadTripDetail = () => {
 					})
 				})
 				
-				batchGetCollect({
-					uuids:uuids
-				}).then((res)=>{
-					if(res.code === 200 && res.data){
-						formData.routePlan = formData.routePlan.map((item)=>{
-							const newSatelliteAttractionList = _.get(item,"satelliteAttractionList",[]).map((item2)=>{
-								if(item2.uuid){
-									return _.find(res.data,{uuid:item2.uuid}) || item2;
+				if(uuids && uuids.length > 0){
+					batchGetCollect({
+						uuids:uuids
+					}).then((res)=>{
+						if(res.code === 200 && res.data){
+							formData.routePlan = formData.routePlan.map((item)=>{
+								const newSatelliteAttractionList = _.get(item,"satelliteAttractionList",[]).map((item2)=>{
+									if(item2.uuid){
+										return _.find(res.data,{uuid:item2.uuid}) || item2;
+									}
+									return item2;
+								})
+
+								if (item.uuid) {
+									return {
+										..._.find(res.data, { uuid: item.uuid }),
+										satelliteAttractionList: newSatelliteAttractionList
+									}
 								}
-								return item2;
+								
+								return item;
 							})
 
-							if (item.uuid) {
-								return {
-									..._.find(res.data, { uuid: item.uuid }),
-									satelliteAttractionList: newSatelliteAttractionList
-								}
-							}
-							
-							return item;
-						})
-						console.log(formData.routePlan,77888)
-
-					}else{
-						uni.showToast({
-							title: res.message || '加载收藏点位失败',
-							icon: 'none'
-						})
-					}
-				})
+						}else{
+							uni.showToast({
+								title: res.message || '加载收藏点位失败',
+								icon: 'none'
+							})
+						}
+					})
+				}
 
 
 
@@ -623,6 +635,12 @@ const handleSelectAttraction = (item) => {
 		})
 	}
 	attractionPopupShow.value = false
+}
+
+const handleEditAttraction = (item) => {
+	uni.navigateTo({
+		url: `/pages/PointEditing/PointEditing?uuid=${item.uuid}`
+	})
 }
 </script>
 
