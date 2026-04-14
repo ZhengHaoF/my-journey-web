@@ -97,7 +97,10 @@
 									<view class="satellite-list" v-for="(item2,index2) in item.satelliteAttractionList" :key="index2">
 										<uni-icons  :type="currentAttractionIndex === index?'paperplane-filled':'paperplane'" size="20" color="#5DAE60" @click="startNavigation(item2.latitude,item2.longitude)"></uni-icons>
 										<view class="satellite-item">
-											<view style="display: flex;">{{item2.title}}</view>
+											<view style="display: flex;align-items: center;">
+												<text>{{item2.title}}</text>
+												<up-icon name="trash" color="#f56c6c" size="20" @click="handleDeleteSatelliteAttraction(index, index2)"></up-icon>
+											</view>
 											<text class="satellite-remark">{{item2.remark}}</text>
 										</view>
 									</view>
@@ -572,6 +575,20 @@ const handleDeleteAttraction = (index) => {
 		success: (res) => {
 			if (res.confirm) {
 				formData.routePlan.splice(index, 1)
+			}
+		}
+	})
+}
+
+const handleDeleteSatelliteAttraction = (mainIndex, satelliteIndex) => {
+	const satellite = formData.routePlan[mainIndex].satelliteAttractionList[satelliteIndex]
+	uni.showModal({
+		title: '确认删除',
+		content: `是否删除"${satellite.title}"卫星景点？`,
+		confirmColor: '#ff4d4f',
+		success: (res) => {
+			if (res.confirm) {
+				formData.routePlan[mainIndex].satelliteAttractionList.splice(satelliteIndex, 1)
 			}
 		}
 	})

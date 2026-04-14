@@ -51,6 +51,7 @@ onLoad(() => {
 .page-content {
 	flex: 1;
 	overflow-y: auto;
+	position: relative;
 }
 
 .bottom-actions {
