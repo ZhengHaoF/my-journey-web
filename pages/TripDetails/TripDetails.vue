@@ -86,7 +86,8 @@
 									<view class="attraction-info">
 										<view class="attraction-actions">
 											<view class="attraction-title">{{item.title}}</view>
-											<view><up-button type="error" :plain="true" size="small" icon="trash" @click="handleDeleteAttraction(index)"></up-button></view>
+											<!-- <view><up-button type="error" :plain="true" size="small" icon="trash" @click="handleDeleteAttraction(index)"></up-button></view> -->
+											<view @click="handleDeleteAttraction(index)"><up-icon name="trash" color="#f56c6c" size="30"></up-icon></view>
 											<view><up-button type="primary" icon="plus" size="small" @click="handleAddSatelliteAttraction(index)"></up-button></view>
 										</view>
 										<view class="attraction-remark">{{item.remark}}</view>
@@ -94,9 +95,9 @@
 								</view>
 								<view class="satellite-container">
 									<view class="satellite-list" v-for="(item2,index2) in item.satelliteAttractionList" :key="index2">
-										<uni-icons type="paperplane-filled" size="25" color="#5DAE60" @click="startNavigation(item2.latitude,item2.longitude)"></uni-icons>
+										<uni-icons  :type="currentAttractionIndex === index?'paperplane-filled':'paperplane'" size="20" color="#5DAE60" @click="startNavigation(item2.latitude,item2.longitude)"></uni-icons>
 										<view class="satellite-item">
-											<text>{{item2.title}}</text>
+											<view style="display: flex;">{{item2.title}}</view>
 											<text class="satellite-remark">{{item2.remark}}</text>
 										</view>
 									</view>
@@ -169,9 +170,10 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { getTripDetail, createTrip, updateTrip, deleteTrip, getCollectList } from '../../api/api'
+import { getTripDetail, createTrip, updateTrip, deleteTrip, getCollectList ,batchGetCollect} from '../../api/api'
 import { hasLogin , startNavigation} from '../../utils/tools'
 import myPageContainer from '../../components/my-page-container/my-page-container.vue'
+import _ from 'lodash';
 
 const formRef = ref(null)
 const tripUuid = ref('')
@@ -279,6 +281,49 @@ const loadTripDetail = () => {
 				formData.endDate = data.endDate || ''
 				formData.cover = data.cover || ''
 				formData.routePlan = data.routePlan || [];
+				let uuids = [];
+				formData.routePlan.forEach((item)=>{
+					if(item.uuid){
+						uuids.push(item.uuid)
+					}
+					_.get(item,"satelliteAttractionList",[]).forEach((item2)=>{
+						if(item2.uuid){
+							uuids.push(item2.uuid)
+						}
+					})
+				})
+				
+				batchGetCollect({
+					uuids:uuids
+				}).then((res)=>{
+					if(res.code === 200 && res.data){
+						formData.routePlan = formData.routePlan.map((item)=>{
+							const newSatelliteAttractionList = _.get(item,"satelliteAttractionList",[]).map((item2)=>{
+								if(item2.uuid){
+									return _.find(res.data,{uuid:item2.uuid}) || item2;
+								}
+								return item2;
+							})
+
+							if (item.uuid) {
+								return {
+									..._.find(res.data, { uuid: item.uuid }),
+									satelliteAttractionList: newSatelliteAttractionList
+								}
+							}
+							
+							return item;
+						})
+						console.log(formData.routePlan,77888)
+
+					}else{
+						uni.showToast({
+							title: res.message || '加载收藏点位失败',
+							icon: 'none'
+						})
+					}
+				})
+
 
 
 				//这里获取到的是这个，需要修改
@@ -507,7 +552,17 @@ const handleAddAttraction = () => {
 }
 
 const handleDeleteAttraction = (index) => {
-	formData.routePlan.splice(index, 1)
+	const attraction = formData.routePlan[index]
+	uni.showModal({
+		title: '确认删除',
+		content: `是否删除"${attraction.title}"位置？`,
+		confirmColor: '#ff4d4f',
+		success: (res) => {
+			if (res.confirm) {
+				formData.routePlan.splice(index, 1)
+			}
+		}
+	})
 }
 
 
@@ -678,6 +733,7 @@ const handleSelectAttraction = (item) => {
 				margin: 20rpx 30rpx;
 				padding-left: 10rpx;
 				display: flex;
+				flex-wrap: wrap;
 
 				.satellite-list {
 					display: flex;
