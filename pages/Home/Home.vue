@@ -116,6 +116,27 @@
 	
 	const handleMarkerTap = (e) => {
 		console.log('点击标记点：', e.detail)
+		
+		const markerId = e.detail.markerId
+		const marker = markers.value.find(item => item.id === markerId)
+		
+		if (marker) {
+			uni.openLocation({
+				latitude: marker.latitude,
+				longitude: marker.longitude,
+				name: marker.title || '收藏点',
+				success: () => {
+					console.log('打开导航成功')
+				},
+				fail: (err) => {
+					console.error('打开导航失败：', err)
+					uni.showToast({
+						title: '打开导航失败',
+						icon: 'none'
+					})
+				}
+			})
+		}
 	}
 </script>
 
