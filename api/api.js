@@ -125,3 +125,13 @@ export const batchGetCollect = (params) => {
 export const getGeocoder = (params) => {
   return post("/proxy/geocoder", params, "GET");
 };
+
+
+/**
+ * 地点关键词输入提示
+ * @param params {address}
+ * @returns {*|Promise<unknown>}
+ */
+export const getSuggestion = (params) => {
+  return post("/proxy/suggestion", params, "GET");
+};

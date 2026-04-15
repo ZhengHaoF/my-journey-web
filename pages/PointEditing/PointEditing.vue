@@ -36,6 +36,26 @@
 			</view>
 		</template>
 		<view class="point-editing-page">
+			<view class="search"><up-search placeholder="请输入地点名称" v-model="keyword" :showAction="false"></up-search></view>
+			<view 
+			v-if="suggestionList.length > 0 && suggestionShow"
+			style="max-height: 200px;
+			position: absolute;
+			top: 100rpx;
+			width: 710rpx;
+			z-index: 99999;
+			background-color: white;
+			overflow-y: auto;
+			left: 50%;
+			transform: translate(-50%);
+			border: 1px solid #EAEBEC;
+			border-radius: 10px;
+			">
+				<view v-for="item in suggestionList" style="border-bottom: 1rpx solid #EAEBEC;padding:20rpx 10rpx;" @click="clickSuggestion(item)">
+					<view>{{item.title}}</view>
+					<view style="font-size: 24rpx;color: #666;">{{`${item.province}-${item.city}-${item.district}`}}</view>
+				</view>
+			</view>
 			<!-- 地图区域 -->
 			<view class="map-section">
 				<map 
@@ -127,9 +147,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { createCollect, updateCollect, getCollectDetail, deleteCollect, getGeocoder } from '../../api/api'
+import { createCollect, updateCollect, getCollectDetail, deleteCollect, getGeocoder, getSuggestion } from '../../api/api'
 import { hasLogin } from '../../utils/tools'
 import myPageContainer from '../../components/my-page-container/my-page-container.vue'
 
@@ -142,6 +162,37 @@ const centerLongitude = ref(116.39742)
 const markers = ref([])
 const showControl = ref(true)
 const currentMarkerId = ref(null)
+
+
+//地点提示功能
+const keyword = ref('');
+const suggestionShow = ref(false);
+const suggestionList = ref([]);
+watch(keyword,  (newVal) => {
+	suggestionList.value = [];
+	if (newVal && newVal.trim() && newVal.trim().length > 1) {
+		 getSuggestion({
+			keyword: newVal.trim()
+		}).then(res => {
+			if (res.code === 200) {
+				suggestionShow.value = true;
+				suggestionList.value = res.data
+			}
+		})
+	}
+})
+
+const clickSuggestion = (item)=>{
+	suggestionShow.value = false;
+	formData.title = item.title;
+	formData.address = item.address;
+	formData.latitude = item.location.lat;
+	formData.longitude = item.location.lng;
+	
+	centerLatitude.value = item.location.lat;
+	centerLongitude.value = item.location.lng;
+}
+
 
 const formData = reactive({
 	title: '',
@@ -484,6 +535,10 @@ const performDelete = () => {
 .point-editing-page {
 	min-height: 100vh;
 	background: #f5f5f5;
+	.search{
+		padding: 20rpx 20rpx 0 20px;	
+		background: #ffffff;
+	}
 }
 
 .page-header {
