@@ -36,7 +36,7 @@
 			</view>
 		</template>
 		<view class="point-editing-page">
-			<view class="search"><up-search placeholder="请输入地点名称" v-model="keyword" :showAction="false"></up-search></view>
+			<view class="search"><up-search placeholder="请输入地点名称" v-model="keyword" @custom="searchSuggestion"  @change="searchSuggestion" @search="searchSuggestion"></up-search></view>
 			<view 
 			v-if="suggestionList.length > 0 && suggestionShow"
 			style="max-height: 200px;
@@ -168,11 +168,13 @@ const currentMarkerId = ref(null)
 const keyword = ref('');
 const suggestionShow = ref(false);
 const suggestionList = ref([]);
-watch(keyword,  (newVal) => {
+
+
+const searchSuggestion = () => {
 	suggestionList.value = [];
-	if (newVal && newVal.trim() && newVal.trim().length > 1) {
+	if (keyword.value && keyword.value.trim() && keyword.value.trim().length > 1) {
 		 getSuggestion({
-			keyword: newVal.trim()
+			keyword: keyword.value.trim()
 		}).then(res => {
 			if (res.code === 200) {
 				suggestionShow.value = true;
@@ -180,7 +182,7 @@ watch(keyword,  (newVal) => {
 			}
 		})
 	}
-})
+}
 
 const clickSuggestion = (item)=>{
 	suggestionShow.value = false;
@@ -189,8 +191,19 @@ const clickSuggestion = (item)=>{
 	formData.latitude = item.location.lat;
 	formData.longitude = item.location.lng;
 	
-	centerLatitude.value = item.location.lat;
-	centerLongitude.value = item.location.lng;
+	const map1 = uni.createMapContext("map1", this)
+	if (map1) {
+		map1.moveToLocation({
+			longitude: item.location.lng,
+			latitude: item.location.lat,
+			success: () => {
+				console.log('地图中心已移动到选择位置')
+			},
+			fail: (err) => {
+				console.error('移动地图中心失败：', err)
+			}
+		})
+	}
 }
 
 
@@ -398,7 +411,6 @@ const handleSelectPoint = () => {
 				longitude: res.longitude
 			}).then((res)=>{
 				if(res.code === 200){
-					console.log(res.result.formatted_addresses.recommend,123456789)
 					formData.title = res?.result?.formatted_addresses?.recommend || ''
 				}
 			})
