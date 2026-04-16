@@ -54,6 +54,18 @@
 			"style": {
 				"navigationBarTitleText": "点位编辑"
 			}
+		},
+		{
+			"path": "pages/UserInfo/UserInfo",
+			"style": {
+				"navigationBarTitleText": "用户信息"
+			}
+		},
+		{
+			"path": "pages/MyInfo/MyInfo",
+			"style": {
+				"navigationBarTitleText": "我的信息"
+			}
 		}
 	],
 	"globalStyle": {

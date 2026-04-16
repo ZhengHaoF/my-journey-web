@@ -135,3 +135,29 @@ export const getGeocoder = (params) => {
 export const getSuggestion = (params) => {
   return post("/proxy/suggestion", params, "GET");
 };
+
+/**
+ * 获取用户信息
+ * @returns {*|Promise<unknown>}
+ */
+export const getUserInfo = () => {
+  return post("/user/info", {}, "GET");
+};
+
+/**
+ * 更新用户信息
+ * @param params {avatar, gender, birthday}
+ * @returns {*|Promise<unknown>}
+ */
+export const updateUserInfo = (params) => {
+  return post("/user/info", params, "PUT");
+};
+
+/**
+ * 修改密码
+ * @param params {oldPassword, newPassword}
+ * @returns {*|Promise<unknown>}
+ */
+export const updatePassword = (params) => {
+  return post("/user/password", params, "PUT");
+};

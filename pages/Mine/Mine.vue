@@ -40,7 +40,10 @@
 <script setup>
 	const goToMyInfo = () => {
 		// TODO: 跳转到我的信息页面
-		console.log('点击了我的信息')
+		console.log('点击了我的信息');
+		uni.navigateTo({
+			url: '/pages/MyInfo/MyInfo'
+		})
 	}
 
 	const goToMyFavorites = () => {
