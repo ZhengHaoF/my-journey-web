@@ -228,6 +228,18 @@ const rules = {
 			message: '封面图URL不能超过255个字符',
 			trigger: ['blur', 'change']
 		}
+	],
+	dates: [
+		{
+			validator: (rule, value, callback) => {
+				if (!formData.startDate || !formData.endDate) {
+					callback(new Error('请选择出发日期和结束日期'))
+				} else {
+					callback()
+				}
+			},
+			trigger: ['change']
+		}
 	]
 }
 
