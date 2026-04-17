@@ -1,4 +1,63 @@
 import {post} from "../utils/post.js";
+import { BASE_URL, WX_BASE_URL } from "../config.js";
+
+const getBaseUrl = () => {
+	return process.env.NODE_ENV === "development" ? BASE_URL : WX_BASE_URL;
+};
+
+/**
+ * 图片上传接口
+ * @param filePath 文件临时路径
+ * @returns {Promise}
+ */
+export const uploadImage = (filePath) => {
+	return new Promise((resolve, reject) => {
+		const baseUrl = getBaseUrl();
+		const url = baseUrl + "/file/upload";
+		
+		const userInfo = uni.getStorageSync('userInfo');
+		const token = userInfo ? userInfo.token : '';
+		
+		uni.uploadFile({
+			url: url,
+			filePath: filePath,
+			name: 'file',
+			header: {
+				'Authorization': `Bearer ${token}`
+			},
+			success: (res) => {
+				try {
+					const data = JSON.parse(res.data);
+					if (data.code === 200) {
+						data.data.url = baseUrl + data.data.url;
+						resolve(data);
+					} else {
+						uni.showToast({
+							title: data.message || '上传失败',
+							icon: 'none'
+						});
+						reject(data);
+					}
+				} catch (e) {
+					console.error('解析上传响应失败:', e);
+					uni.showToast({
+						title: '上传失败',
+						icon: 'none'
+					});
+					reject(e);
+				}
+			},
+			fail: (error) => {
+				console.error('上传失败:', error);
+				uni.showToast({
+					title: '网络错误',
+					icon: 'none'
+				});
+				reject(error);
+			}
+		});
+	});
+};
 
 /**
  * APP登录

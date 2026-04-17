@@ -5,17 +5,17 @@
 			<view class="info-card">
 				<!-- 头像区域 -->
 				<view class="avatar-section">
-					<view class="avatar-wrapper" @click="handleAvatarClick">
-						<up-avatar
-							:src="formData.avatar"
-							size="120"
-							shape="circle"
-						></up-avatar>
-						<view class="avatar-edit-icon">
-							<up-icon name="camera" size="20" color="#fff"></up-icon>
-						</view>
+					<view class="avatar-wrapper" :class="{ 'editable': isEditing }" @click="handleAvatarClick">
+					<up-avatar
+						:src="formData.avatar"
+						size="120"
+						shape="circle"
+					></up-avatar>
+					<view class="avatar-edit-icon" v-if="isEditing">
+						<up-icon name="camera" size="20" color="#fff"></up-icon>
 					</view>
-					<text class="username">{{ formData.username }}</text>
+				</view>
+				<text class="username">{{ formData.username }}</text>
 				</view>
 			</view>
 
@@ -94,6 +94,7 @@
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { getUserInfo, updateUserInfo } from '../../api/api'
+import { uploadImage } from '../../api/api'
 import { hasLogin } from '../../utils/tools'
 import myPageContainer from '../../components/my-page-container/my-page-container.vue'
 
@@ -241,48 +242,34 @@ const handleAvatarClick = () => {
 		count: 1,
 		sizeType: ['compressed'],
 		sourceType: ['album', 'camera'],
-		success: (res) => {
+		success: async (res) => {
 			const tempFilePath = res.tempFilePaths[0]
 			uni.showLoading({ title: '上传中...' })
-			uni.uploadFile({
-				url: 'https://your-api-domain.com/upload',
-				filePath: tempFilePath,
-				name: 'file',
-				success: (uploadRes) => {
-					uni.hideLoading()
-					try {
-						const data = JSON.parse(uploadRes.data)
-						if (data.code === 200 && data.url) {
-							formData.value.avatar = data.url
-							uni.showToast({
-								title: '上传成功',
-								icon: 'success'
-							})
-						} else {
-							uni.showToast({
-								title: '上传失败',
-								icon: 'none'
-							})
-						}
-					} catch (e) {
-						console.error('解析上传响应失败:', e)
-						formData.value.avatar = tempFilePath
-						uni.showToast({
-							title: '上传成功（本地预览）',
-							icon: 'success'
-						})
-					}
-				},
-				fail: (error) => {
-					uni.hideLoading()
-					console.error('上传失败:', error)
-					formData.value.avatar = tempFilePath
+			
+			try {
+				const uploadRes = await uploadImage(tempFilePath)
+				uni.hideLoading()
+				if (uploadRes.data && uploadRes.data.url) {
+					formData.value.avatar = uploadRes.data.url
 					uni.showToast({
-						title: '上传成功（本地预览）',
+						title: '上传成功',
 						icon: 'success'
 					})
+				} else {
+					uni.showToast({
+						title: '上传失败',
+						icon: 'none'
+					})
 				}
-			})
+			} catch (error) {
+				uni.hideLoading()
+				console.error('上传失败:', error)
+				formData.value.avatar = tempFilePath
+				uni.showToast({
+					title: '上传失败',
+					icon: 'none'
+				})
+			}
 		}
 	})
 }
@@ -345,11 +332,15 @@ const formatTime = (time) => {
 .avatar-wrapper {
 	position: relative;
 	border-radius: 50%;
-	cursor: pointer;
+	cursor: not-allowed;
 	transition: transform 0.3s ease;
 
-	&:active {
-		transform: scale(0.95);
+	&.editable {
+		cursor: pointer;
+
+		&:active {
+			transform: scale(0.95);
+		}
 	}
 }
 
