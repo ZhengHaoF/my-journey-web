@@ -66,6 +66,13 @@
 			"style": {
 				"navigationBarTitleText": "我的信息"
 			}
+		},
+		{
+			"path": "pages/MapDisplay/MapDisplay",
+			"style": {
+				"navigationBarTitleText": "地图展示",
+				"navigationStyle": "custom"
+			}
 		}
 	],
 	"globalStyle": {

@@ -5,7 +5,10 @@
 				<view v-for="(trip, tripIndex) in tripList" :key="tripIndex" class="trip-card">
 					<view class="trip-header">
 						<view class="trip-title" @click="goToTripDetail(trip.uuid)">{{ trip.title }}</view>
-						<up-tag text="进行中" type="success" plain size="mini"></up-tag>
+						<view class="trip-header-actions">
+							<up-tag text="进行中" type="success" plain size="mini"></up-tag>
+							<up-icon name="map" color="#5DAE60" size="24" @click="goToMapDisplay(trip.uuid)"></up-icon>
+						</view>
 					</view>
 					<view class="trip-date">
 						<up-icon name="calendar" size="16" color="#999"></up-icon>
@@ -178,6 +181,19 @@
 			url: `/pages/TripDetails/TripDetails?uuid=${uuid}`
 		})
 	}
+	
+	const goToMapDisplay = (uuid) => {
+		if (!uuid) {
+			uni.showToast({
+				title: '缺少行程ID',
+				icon: 'none'
+			})
+			return
+		}
+		uni.navigateTo({
+			url: `/pages/MapDisplay/MapDisplay?uuid=${uuid}`
+		})
+	}
 </script>
 
 <style lang="scss" scoped>
@@ -209,6 +225,12 @@
 				font-size: 32rpx;
 				font-weight: bold;
 				color: #303133;
+			}
+			
+			.trip-header-actions {
+				display: flex;
+				align-items: center;
+				gap: 16rpx;
 			}
 		}
 		

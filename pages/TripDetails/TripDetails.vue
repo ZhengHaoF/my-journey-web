@@ -85,7 +85,10 @@
 						/>
 					</up-form-item>
 				</up-form>
-				<view style="margin-bottom:20rpx">详细内容</view>
+				<view style="margin-bottom:20rpx;display: flex;justify-content: space-between;">
+					<view>详细内容</view>
+					<view @click="goToMapDisplay" style="color:#5DAE60;display: flex;justify-content: center;align-items: center;">去地图查看</view>
+				</view>
 				<view class="attraction-section">
 					<view class="attraction-container">
 						<view v-for="(item,index) in formData.routePlan" :key="index" class="attraction-item">
@@ -641,6 +644,19 @@ const handleAddSatelliteAttraction = (index) => {
 	addAttractionType.value = "satelliteAttraction"
 	mainAttractionIndex.value = index
 	loadCollectList()
+}
+
+const goToMapDisplay = () => {
+	if (!tripUuid.value) {
+		uni.showToast({
+			title: '请先保存行程',
+			icon: 'none'
+		})
+		return
+	}
+	uni.navigateTo({
+		url: `/pages/MapDisplay/MapDisplay?uuid=${tripUuid.value}`
+	})
 }
 
 
