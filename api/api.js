@@ -86,6 +86,14 @@ export const getTripList = () => {
 };
 
 /**
+ * 获取开启行程列表
+ * @returns {*|Promise<unknown>}
+ */
+export const getEnabledTrip = () => {
+  return post("/trip/enabled",{}, "GET");
+};
+
+/**
  * 获取行程详情
  * @param uuid 行程唯一标识
  * @returns {*|Promise<unknown>}

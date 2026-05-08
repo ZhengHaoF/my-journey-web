@@ -75,8 +75,17 @@
 							:showWordCount="true"
 						/>
 					</up-form-item>
+
+					<!-- 行程开关 -->
+					<up-form-item label="开启行程">
+						<up-switch
+							v-model="formData.isEnabled"
+							activeColor="#5DAE60"
+							inactiveColor="#dcdee0"
+						/>
+					</up-form-item>
 				</up-form>
-				<view style="margin-bottom:20px">详细内容</view>
+				<view style="margin-bottom:20rpx">详细内容</view>
 				<view class="attraction-section">
 					<view class="attraction-container">
 						<view v-for="(item,index) in formData.routePlan" :key="index" class="attraction-item">
@@ -88,23 +97,26 @@
 											<view class="attraction-title">{{item.title}}</view>
 											<!-- <view><up-button type="error" :plain="true" size="small" icon="trash" @click="handleDeleteAttraction(index)"></up-button></view> -->
 											<view @click="handleDeleteAttraction(index)"><up-icon name="trash" color="#f56c6c" size="30"></up-icon></view>
-											<view><up-button type="primary" icon="plus" size="small" @click="handleAddSatelliteAttraction(index)"></up-button></view>
+											<view @click="handleAddSatelliteAttraction(index)"><up-icon name="plus-circle" color="#5DAE60" size="25"></up-icon></view>
+											<view @click="toggleExpand(index)"><up-icon :name="expandedItems[index]?'arrow-up':'arrow-down'" color="#5DAE60" size="25"></up-icon></view>
 										</view>
 										<view class="attraction-remark">{{item.remark}}</view>
 									</view>
 								</view>
-								<view class="satellite-container">
-									<view class="satellite-list" v-for="(item2,index2) in item.satelliteAttractionList" :key="index2">
-										<uni-icons  :type="currentAttractionIndex === index?'paperplane-filled':'paperplane'" size="20" color="#5DAE60" @click="startNavigation(item2.latitude,item2.longitude)"></uni-icons>
-										<view class="satellite-item">
-											<view style="display: flex;align-items: center;">
-												<text>{{item2.title}}</text>
-												<up-icon name="trash" color="#f56c6c" size="20" @click="handleDeleteSatelliteAttraction(index, index2)"></up-icon>
+								<up-transition :show="expandedItems[index]" mode="fade" :duration="200">
+									<view class="satellite-container">
+										<view class="satellite-list" v-for="(item2,index2) in item.satelliteAttractionList" :key="index2">
+											<uni-icons  :type="currentAttractionIndex === index?'paperplane-filled':'paperplane'" size="20" color="#5DAE60" @click="startNavigation(item2.latitude,item2.longitude)"></uni-icons>
+											<view class="satellite-item">
+												<view style="display: flex;align-items: center;">
+													<text>{{item2.title}}</text>
+													<up-icon name="trash" color="#f56c6c" size="20" @click="handleDeleteSatelliteAttraction(index, index2)"></up-icon>
+												</view>
+												<text class="satellite-remark">{{item2.remark}}</text>
 											</view>
-											<text class="satellite-remark">{{item2.remark}}</text>
 										</view>
 									</view>
-								</view>
+								</up-transition>
 							</view>			
 						</view>
 					</view>
@@ -199,6 +211,7 @@ const calendarShow = ref(false)
 const calendarDefaultDate = ref(new Date())
 
 const currentAttractionIndex = ref(0)
+const expandedItems = ref([])
 
 const formData = reactive({
 	title: '',
@@ -206,7 +219,8 @@ const formData = reactive({
 	startDate: '',
 	endDate: '',
 	cover: '',
-	routePlan:[]
+	routePlan:[],
+	isEnabled: false
 })
 
 const rules = {
@@ -307,6 +321,8 @@ const loadTripDetail = () => {
 				formData.endDate = data.endDate || ''
 				formData.cover = data.cover || ''
 				formData.routePlan = data.routePlan || [];
+				formData.isEnabled = data.isEnabled ?? false
+				expandedItems.value = new Array(formData.routePlan.length).fill(true)
 				let uuids = [];
 				formData.routePlan.forEach((item)=>{
 					if(item.uuid){
@@ -457,7 +473,8 @@ const handleSubmit = async () => {
 		startDate: formData.startDate || "",
 		endDate: formData.endDate || "",
 		cover: formData.cover || "",
-		routePlan: routePlan
+		routePlan: routePlan,
+		isEnabled: formData.isEnabled
 	}
 
 	if (isEditMode.value) {
@@ -578,6 +595,14 @@ const handleAddAttraction = () => {
 	loadCollectList()
 }
 
+const toggleExpand = (index) => {
+	if (!expandedItems.value[index]) {
+		expandedItems.value[index] = true
+	} else {
+		expandedItems.value[index] = !expandedItems.value[index]
+	}
+}
+
 const handleDeleteAttraction = (index) => {
 	const attraction = formData.routePlan[index]
 	uni.showModal({
@@ -658,6 +683,7 @@ const handleSelectAttraction = (item) => {
 			...item,
 			satelliteAttractionList:[]
 		})
+		expandedItems.value.push(true)
 	}else if(addAttractionType.value === "satelliteAttraction"){
 		formData.routePlan[mainAttractionIndex.value].satelliteAttractionList.push({
 			...item
@@ -738,14 +764,14 @@ const handleEditAttraction = (item) => {
 	.attraction-item {
 		flex: 8;
 		display: flex;
-		gap: 10px;
+		gap: 10rpx;
 
 		.attraction-content {
 			flex: 8;
 
 			.attraction-header {
 				display: flex;
-				gap: 10px;
+				gap: 10rpx;
 				align-items: center;
 
 				.attraction-info {
@@ -784,7 +810,7 @@ const handleEditAttraction = (item) => {
 
 				.satellite-list {
 					display: flex;
-					margin-bottom: 10px;
+					margin-bottom: 10rpx;
 
 					.satellite-item {
 						display: flex;
